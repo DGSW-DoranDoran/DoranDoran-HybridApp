@@ -10,7 +10,8 @@ import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
 import HomeTab from './AppTabNavigator/HomeTab';
 import SearchTab from './AppTabNavigator/SearchTab';
-import SomeTab from './AppTabNavigator/SomeTab'
+import SomeTab from './AppTabNavigator/SomeTab';
+import ProfileTab from './AppTabNavigator/ProfileTab';
 
 const HomeStack = createStackNavigator(
     {
@@ -26,7 +27,7 @@ const HomeStack = createStackNavigator(
 const SearchStack = createStackNavigator(
     {
         SearchTab,
-        SomeTab
+        SomeTab,
     },
     {
         defaultNavigationOptions: ({navigation}) => ({
@@ -41,6 +42,7 @@ const TabNavigator = createBottomTabNavigator(
     {
         Home: HomeStack,
         Search: SearchStack,
+        Profile: ProfileTab
     },
     {
         defaultNavigationOptions: ({navigation}) => ({
@@ -48,10 +50,12 @@ const TabNavigator = createBottomTabNavigator(
                 const {routeName} = navigation.state;
                 let icon = "▲";
 
-                if(routeName === 'Home'){
+                if(routeName === 'Home') {
                     icon = "🌈";
-                } else if(routeName === 'Search'){
+                } else if(routeName === 'Search') {
                     icon = "🌙"
+                } else if(routeName === 'Profile') {
+                    icon = ""
                 } 
 
                 // can use react-native-vector-icons

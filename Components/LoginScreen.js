@@ -1,10 +1,26 @@
 import React, { Component } from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, Image, Text, StyleSheet, AsyncStorage } from 'react-native';
 import { Card, Form, Container, Item, Input, Label, Button, CardItem, CheckBox, Body } from 'native-base';
 import axios from 'axios';
 import { baseUri } from '../config/dbUri';
+import Expo, { SQLite } from 'expo';
+import { openDatabase } from 'react-native-sqlite-storage';
+
+const db = openDatabase({name: 'LocalDB.db'});
 
 export default class LoginScreen extends Component {
+    async componentWillMount() {
+        (await db).transaction(tx => {
+            tx.executeSql(
+                "CREATE TABLE users (id TEXT NOT NULL UNIQUE, token TEXT NOT NULL,PRIMARY KEY(id));"
+            ).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err);
+            })
+        })
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -14,33 +30,36 @@ export default class LoginScreen extends Component {
         };
     }
 
-    _keepLoginCheck = () => {
-        if(this.state.checked) {
-            this.setState({
-                checked: false,
-            })
-        } else {
-            this.setState({
-                checked: true,
-            })
-        }
-    }
+    // _keepLoginCheck = () => {
+    //     if(this.state.checked) {
+    //         this.setState({
+    //             checked: false,
+    //         })
+    //     } else {
+    //         this.setState({
+    //             checked: true,
+    //         })
+    //     }
+    // }
 
     _signInBtn = () => {
         this.props.navigation.navigate('RegisterScreen');
     }
 
-    _signUpBtn = () => {
+    _signUpBtn = async() => {
         const { id, password } = this.state;
         const data = {
             id: id,
             password: password
         }
-        
-        axios.post(`${baseUri}/auth/login`, data)
-        .then(res => {
+
+        await axios.post(`${baseUri}/auth/login`, data)
+        .then(async res => {
             if(res.status == 200) {
+                const { token } = res.data.data.token;
                 this.props.navigation.navigate('HomeTab', res);
+                sessionStorage.setItem('token', token);
+                sessionStorage.setItem('id', res.data.data.id);
             }
         })
         .catch(err => console.log(err))
